@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>Weather Station Web App</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/1.7.3/socket.io.js"></script>
+</head>
+
+<body>
+    <h1>Weather Station</h1>
+    <div id="divTemperature" style="width: 80%; height: 40%"> </div>
+    <div id="divHumidity" style="width: 80%; height: 40%"> </div>
+    <script type="text/javascript">
+        var socket = io.connect();
+        socket.on('temperature_data', (content) => {
+            xData = content.map((curr) => curr.timestamp)
+            yData = content.map((curr) => curr.temperature)
+            var data = {
+                mode: 'lines+markers',
+                // fill: 'tozeroy',
+                line: {
+                    shape: "vh",
+                    color: 'black'
+                },
+                marker: {
+                  symbol: 'circle-open',
+                  size: 8
+                },
+                x: xData,
+                y: yData,
+            }
+            var layout = {
+                title: 'Temperature Data'
+            };
+            Plotly.newPlot('divTemperature', [data], layout);
+        })
+        socket.on('humidity_data', (content) => {
+            xData = content.map((curr) => curr.timestamp)
+            yData = content.map((curr) => curr.humidity)
+            var data = {
+                mode: 'lines+markers',
+                line: {
+                  shape: "spline",
+                  color: 'black'
+                },
+                marker: {
+                  symbol: 'circle-open',
+                  size: 8
+                },
+                x: xData,
+                y: yData
+            }
+            var layout = {
+                title: 'Humidity Data'
+            };
+            Plotly.newPlot('divHumidity', [data], layout);
+        })
+    </script>
+</body>
+
+</html>
