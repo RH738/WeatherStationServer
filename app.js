@@ -5,8 +5,10 @@ var io = require('socket.io')(server);
 
 var mqtt = require('mqtt')
 var client = mqtt.connect({
-  host: 'localhost',
-  port: 1883
+  host: '192.168.0.168',
+  port: 1883,
+  username: 'homeassistant',
+  password: 'asd00222'
 })
 var fs = require('fs')
 
@@ -14,9 +16,26 @@ var temperature_filename = undefined
 var humidity_filename = undefined
 
 io.on('connection', function(socket) {
-  if (!temperature_filename || !humidity_filename) {
-    return;
-  } else {
+  var timestamp = new Date().toISOString().split('T');
+  if(!temperature_filename){
+    var temperature_filename_test = __dirname + "/weather_data/temperature_" + timestamp[0] + ".txt";
+    if(fs.existsSync(temperature_filename_test)){
+      temperature_filename = temperature_filename_test;
+    } else {
+      return
+    }
+  }
+  if(!humidity_filename){
+    var humidity_filename_test = __dirname + "/weather_data/humidity_" + timestamp[0] + ".txt";
+    if(fs.existsSync(humidity_filename_test)){
+      humidity_filename = humidity_filename_test;
+    } else {
+      return
+    }
+  }
+  // if (!temperature_filename || !humidity_filename) {
+  //   return;
+  // } else {
     var temperature = fs.readFileSync(temperature_filename, encoding = 'utf8')
       .split('\n')
       .filter(curr => curr.length > 0)
@@ -40,7 +59,7 @@ io.on('connection', function(socket) {
         }
       })
     socket.emit('humidity_data', humidity)
-  }
+  // }
 });
 
 client.on('connect', function() {
@@ -63,4 +82,4 @@ client.on('message', function(topic, message) {
 app.get('/', function(req, res) {
   res.sendFile(__dirname + '/public/index.html');
 });
-server.listen(3000);
+server.listen(55055);
